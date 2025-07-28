@@ -21,13 +21,16 @@ class NotificationManager():
     def send(self) -> None:
         res = query_status(self.__location, self.__number, self.__passport_number, self.__surname, self.__captchaHandle)
         current_status = res['status']
-    
-        # 加载之前的状态记录
+
+        # Load the previous statuses from the file
         statuses = self.__load_statuses()
-    
-        # 始终保存当前状态并发送通知
-        self.__save_current_status(current_status)
-        self.__send_notifications(res)
+
+        # Check if the current status is different from the last recorded status
+        if not statuses or current_status != statuses[-1]['status']:
+            self.__save_current_status(current_status)
+            self.__send_notifications(res)
+        else:
+            print("Status unchanged. No notification sent.")
 
     def __load_statuses(self) -> list:
         if os.path.exists(self.__status_file):
@@ -43,7 +46,25 @@ class NotificationManager():
             json.dump({'statuses': statuses}, file)
 
     def __send_notifications(self, res: dict) -> None:
-        
+        if res['status'] == "Refused":
+            import pytz, datetime
+            try:
+                TIMEZONE = os.environ["TIMEZONE"]
+                localTimeZone = pytz.timezone(TIMEZONE)
+                localTime = datetime.datetime.now(localTimeZone)
+            except pytz.exceptions.UnknownTimeZoneError:
+                print("UNKNOWN TIMEZONE Error, use default")
+                localTime = datetime.datetime.now()
+            except KeyError:
+                print("TIMEZONE Error")
+                localTime = datetime.datetime.now()
+
+            if localTime.hour < 8 or localTime.hour > 22:
+                print("In Manager, no disturbing time")
+                return
+            if localTime.minute > 30:
+                print("In Manager, no disturbing time")
+                return
 
         for notificationHandle in self.__handleList:
             notificationHandle.send(res)
