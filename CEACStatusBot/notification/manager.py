@@ -43,25 +43,7 @@ class NotificationManager():
             json.dump({'statuses': statuses}, file)
 
     def __send_notifications(self, res: dict) -> None:
-        if res['status'] == "Refused":
-            import pytz, datetime
-            try:
-                TIMEZONE = os.environ["TIMEZONE"]
-                localTimeZone = pytz.timezone(TIMEZONE)
-                localTime = datetime.datetime.now(localTimeZone)
-            except pytz.exceptions.UnknownTimeZoneError:
-                print("UNKNOWN TIMEZONE Error, use default")
-                localTime = datetime.datetime.now()
-            except KeyError:
-                print("TIMEZONE Error")
-                localTime = datetime.datetime.now()
-
-            if localTime.hour < 8 or localTime.hour > 22:
-                print("In Manager, no disturbing time")
-                return
-            if localTime.minute > 30:
-                print("In Manager, no disturbing time")
-                return
+        
 
         for notificationHandle in self.__handleList:
             notificationHandle.send(res)
