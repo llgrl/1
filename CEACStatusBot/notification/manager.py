@@ -66,4 +66,4 @@ class NotificationManager():
 
     # 直接发送通知
         for notificationHandle in self.__handleList:
-        notificationHandle.send(res)
+            notificationHandle.send(res)
