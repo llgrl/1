@@ -19,15 +19,16 @@ class NotificationManager():
         self.__handleList.append(notificationHandle)
 
     def send(self) -> None:
-    res = query_status(self.__location, self.__number, self.__passport_number, self.__surname, self.__captchaHandle)
-    current_status = res['status']
+        res = query_status(self.__location, self.__number, self.__passport_number, self.__surname, self.__captchaHandle)
+        current_status = res['status']
 
-    statuses = self.__load_statuses()
+        statuses = self.__load_statuses()
 
-    if not statuses or current_status != statuses[-1]['status']:
-        self.__save_current_status(current_status)
+        if not statuses or current_status != statuses[-1]['status']:
+            self.__save_current_status(current_status)
 
-    self.__send_notifications(res)
+        self.__send_notifications(res)
+
     def __load_statuses(self) -> list:
         if os.path.exists(self.__status_file):
             with open(self.__status_file, 'r') as file:
